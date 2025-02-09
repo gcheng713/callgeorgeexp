@@ -37,22 +37,68 @@ export const getBobAssistant = async () => {
     onComplete: async (conversation) => {
       try {
         const data = conversation.structuredData;
+        console.log('Raw conversation data:', conversation);
+        console.log('Structured data:', data);
         
-        // Send data to backend API instead of direct Prisma usage
-        const inspection = await createInspection({
-          propertyAddress: data.address,
-          propertyType: data.propertyType || 'residential',
-          squareFootage: data.squareFootage || 0,
-          scheduledDate: data.appointmentDate,
-          customerName: data.customerName,
-          customerEmail: data.customerEmail,
-          status: 'scheduled'
+        // Format data using Groq
+        console.log('Sending to Groq API:', {
+          endpoint: process.env.GROQ_API_ENDPOINT,
+          data: data
         });
-        
-        return inspection;
+
+        const groqResponse = await fetch(process.env.GROQ_API_ENDPOINT + '/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'mixtral-8x7b-32768',
+            messages: [{
+              role: 'system',
+              content: 'Convert the following inspection data into a booking format with startTime, name, email, notes, and address fields.'
+            }, {
+              role: 'user',
+              content: JSON.stringify(data)
+            }]
+          })
+        });
+
+        const groqData = await groqResponse.json();
+        console.log('Groq API response:', groqData);
+
+        const formattedData = JSON.parse(groqData.choices[0].message.content);
+        console.log('Formatted data:', formattedData);
+
+        const bookingPayload = {
+          startTime: formattedData.startTime || data.appointmentDate,
+          name: formattedData.name || data.customerName,
+          email: formattedData.email || data.customerEmail,
+          notes: `Property Type: ${data.propertyType}, Square Footage: ${data.squareFootage}`,
+          address: formattedData.address || data.address
+        };
+        console.log('Booking API payload:', bookingPayload);
+
+        // Make booking API call
+        const bookingResponse = await fetch('https://home-inspector-vpyg.vercel.app/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(bookingPayload)
+        });
+
+        const bookingResult = await bookingResponse.json();
+        console.log('Booking API response:', bookingResult);
+
+        return bookingResult;
       } catch (error) {
         console.error('Failed to create inspection:', error);
-        throw error;
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
+        return null;
       }
     },
     model: {
