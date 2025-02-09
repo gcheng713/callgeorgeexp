@@ -64,7 +64,7 @@ const App = () => {
   };
 
   const endCall = () => {
-    vapi.stop();
+      vapi.stop();
   };
 
   return (

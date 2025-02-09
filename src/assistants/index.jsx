@@ -30,13 +30,14 @@ export const getBobAssistant = async () => {
             customerEmail: { type: "string", description: "Customer's email address" }
           },
           description: "Booking information for home inspection",
-          server: {
-            url: "https://home-inspector-vpyg.vercel.app/api/webhook",
-          },
+ 
 
         },
         timeoutSeconds: 1
       }
+    },
+    server: {
+      url: "https://home-inspector-vpyg.vercel.app/api/webhook",
     },
     onComplete: async (conversation) => {
       try {
