@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import ActiveCallDetail from "./components/ActiveCallDetail";
 import Button from "./components/base/Button";
@@ -7,13 +7,6 @@ import ErrorBoundary from "./ErrorBoundary";
 
 import { getBobAssistant } from "./assistants";
 
-const vapi = new Vapi(
-  process.env.REACT_APP_VAPI_PUBLIC_KEY ||
-    process.env.PUBLIC_VAPI_KEY ||
-    process.env.NEXT_PUBLIC_VAPI_KEY ||
-    ""
-);
-
 const App = () => {
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -21,31 +14,40 @@ const App = () => {
   const [assistantIsSpeaking, setAssistantIsSpeaking] = useState(false);
   const [volumeLevel, setVolumeLevel] = useState(0);
 
+  const vapiClient = useMemo(() => new Vapi(
+    process.env.REACT_APP_VAPI_PUBLIC_KEY ||
+    process.env.PUBLIC_VAPI_KEY ||
+    process.env.NEXT_PUBLIC_VAPI_KEY ||
+    "",
+    undefined,
+    { alwaysIncludeMicInPermissionPrompt: true }
+  ), []);
+
   // hook into Vapi events
   useEffect(() => {
-    vapi.on("call-start", () => {
+    vapiClient.on("call-start", () => {
       setConnecting(false);
       setConnected(true);
     });
 
-    vapi.on("call-end", () => {
+    vapiClient.on("call-end", () => {
       setConnecting(false);
       setConnected(false);
     });
 
-    vapi.on("speech-start", () => {
+    vapiClient.on("speech-start", () => {
       setAssistantIsSpeaking(true);
     });
 
-    vapi.on("speech-end", () => {
+    vapiClient.on("speech-end", () => {
       setAssistantIsSpeaking(false);
     });
 
-    vapi.on("volume-level", (level) => {
+    vapiClient.on("volume-level", (level) => {
       setVolumeLevel(level);
     });
 
-    vapi.on("error", (error) => {
+    vapiClient.on("error", (error) => {
       console.error(error);
 
       setConnecting(false);
@@ -53,18 +55,19 @@ const App = () => {
 
     // we only want this to fire on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [vapiClient]);
 
   // call start handler
   const startCallInline = () => {
     setConnecting(true);
     getBobAssistant().then((assistant) => {
-      vapi.start(assistant);
+      vapiClient.start(assistant);
     });
   };
 
   const endCall = () => {
-      vapi.stop();
+    console.log("Ending call");
+    vapiClient.stop();
   };
 
   return (
