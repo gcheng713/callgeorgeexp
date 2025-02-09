@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Inspection {
+  id              Int      @id @default(autoincrement())
+  propertyAddress String   @map("property_address")
+  propertyType    String   @map("property_type")
+  squareFootage   Int      @map("square_footage")
+  scheduledDate   DateTime @map("scheduled_date")
+  customerName    String   @map("customer_name")
+  customerEmail   String   @map("customer_email")
+  createdAt      DateTime @default(now()) @map("created_at")
+  calEventId     String?  @map("cal_event_id")
+  status         String   @default("scheduled")
+
+  @@map("inspections")
+}

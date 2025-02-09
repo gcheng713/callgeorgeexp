@@ -1,22 +1,9 @@
+import { PrismaClient } from '@prisma/client';
+import { createInspection } from '../api/inspections';
+
+const prisma = new PrismaClient();
+
 export const getBobAssistant = async () => {
-  // Fetch menu data from make.com endpoint
-  const response = await fetch('https://hook.us2.make.com/w1ceb8xrnkg4l9my5ls7dp25fjuucemc');
-  const menuData = await response.json();
-  
-  // Using fetched data from make.com
-  const inventory = menuData || [
-    { name: "Crude Oil", quantity: 1908.8, unit: "grams" },
-    { name: "Green Crack Trim", quantity: 1360, unit: "lbs" },
-    { name: "Platinum OG Trim", quantity: 171, unit: "lbs" },
-    { name: "Prerolled Joint", quantity: 597, unit: "units" },
-    { name: "RAW Cone", quantity: 112, unit: "units" }
-  ];
-
-  // Generate menu text from inventory data
-  const menuText = inventory
-    .map((item, index) => `${index + 1}) ${item.name} - ${item.quantity} ${item.unit}`)
-    .join('\n');
-
   return {
     name: "Georgia",
     firstMessage: "Hi, thanks for calling! My name is Georgia. Are you looking to schedule a home inspection today?",
@@ -36,14 +23,36 @@ export const getBobAssistant = async () => {
           type: "object",
           properties: {
             address: { type: "string", description: "Complete address of the home to be inspected" },
-            zipCode: { type: "string", description: "Zip code of the property" },
+            propertyType: { type: "string", description: "Type of property (e.g., residential, commercial)" },
+            squareFootage: { type: "number", description: "Square footage of the property" },
             appointmentDate: { type: "string", description: "Requested date for inspection" },
-            appointmentTime: { type: "string", description: "Requested time for inspection" },
-            email: { type: "string", description: "Customer's email address" }
+            customerName: { type: "string", description: "Customer's full name" },
+            customerEmail: { type: "string", description: "Customer's email address" }
           },
           description: "Booking information for home inspection"
         },
         timeoutSeconds: 1
+      }
+    },
+    onComplete: async (conversation) => {
+      try {
+        const data = conversation.structuredData;
+        
+        // Send data to backend API instead of direct Prisma usage
+        const inspection = await createInspection({
+          propertyAddress: data.address,
+          propertyType: data.propertyType || 'residential',
+          squareFootage: data.squareFootage || 0,
+          scheduledDate: data.appointmentDate,
+          customerName: data.customerName,
+          customerEmail: data.customerEmail,
+          status: 'scheduled'
+        });
+        
+        return inspection;
+      } catch (error) {
+        console.error('Failed to create inspection:', error);
+        throw error;
       }
     },
     model: {
@@ -54,10 +63,13 @@ export const getBobAssistant = async () => {
           role: "system",
           content: `You are Georgia, a friendly and professional call operator for a home repair company specializing in home inspections.
 
-Your primary goal is to help callers schedule home inspections while maintaining a natural, conversational tone. You need to collect:
+Your primary goal is to help callers schedule home inspections while maintaining a natural, conversational tone. You must collect ALL of the following information:
 - Complete home address (with street name and zip code)
-- Appointment date and time
-- Customer's email address
+- Property type (residential or commercial)
+- Approximate square footage of the property
+- Preferred appointment date and time
+- Customer's full name
+- Customer's email address (ask for spelling)
 
 Key responsibilities:
 1. Verify spellings for addresses and email addresses
@@ -80,8 +92,19 @@ Remember to:
 - Confirm all details before ending the call
 - Filter out background noise unless it's clearly the caller speaking
 
-End calls by summarizing the booking details:
-"You're all set! Your home inspection is scheduled for [date & time] at [address]. A confirmation email will be sent to [email]."`,
+Before ending the call, verify you have collected ALL required information:
+1. Property Address: [repeat full address]
+2. Property Type: [residential/commercial]
+3. Square Footage: [number]
+4. Appointment Date & Time: [date and time]
+5. Customer Name: [full name]
+6. Email Address: [spell out email]
+
+End calls by summarizing ALL booking details:
+"Perfect! Let me confirm everything: We'll be inspecting your [square footage] square foot [property type] property at [address]. The inspection is scheduled for [date & time]. I'll send the confirmation email to [spell out email]. Is all of that information correct?"
+
+After confirmation, close with:
+"Great! You're all set for your inspection. You'll receive a confirmation email shortly with all these details. Thank you for choosing our services!"`,
         },
       ],
     }
