@@ -6,7 +6,12 @@ import Vapi from "@vapi-ai/web";
 
 import { getBobAssistant } from "./assistants";
 
-const vapi = new Vapi(process.env.REACT_APP_VAPI_PUBLIC_KEY || process.env.PUBLIC_VAPI_KEY || process.env.NEXT_PUBLIC_VAPI_KEY  || "");
+const vapi = new Vapi(
+  process.env.REACT_APP_VAPI_PUBLIC_KEY ||
+    process.env.PUBLIC_VAPI_KEY ||
+    process.env.NEXT_PUBLIC_VAPI_KEY ||
+    ""
+);
 
 const App = () => {
   const [connecting, setConnecting] = useState(false);
@@ -52,7 +57,7 @@ const App = () => {
   // call start handler
   const startCallInline = () => {
     setConnecting(true);
-    getBobAssistant().then(assistant => {
+    getBobAssistant().then((assistant) => {
       vapi.start(assistant);
     });
   };
@@ -92,8 +97,9 @@ const App = () => {
             alignItems: "center",
           }}
         >
-          <img 
-            src="bob.png" alt="Bob"
+          <img
+            src="bob.png"
+            alt="Bob"
             style={{
               display: "flex",
               width: 300,
@@ -102,7 +108,7 @@ const App = () => {
           />
           {!connected ? (
             <Button
-              label="Place an order "
+              label="Start Call"
               onClick={startCallInline}
               isLoading={connecting}
             />
@@ -112,15 +118,15 @@ const App = () => {
               volumeLevel={volumeLevel}
               onEndCallClick={endCall}
             />
-          )} 
+          )}
         </div>
-        <iframe
+        {/* <iframe
           id="distru-product-menu-iframe-id"
           src="https://app.distru.com/companies/1/menu/3051"
           scrolling="no"
           style={{border: "none", minHeight: 1000, overflow: "hidden",}}
           width="100%"
-        ></iframe>
+        ></iframe> */}
       </div>
     </div>
   );
