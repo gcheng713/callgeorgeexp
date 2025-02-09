@@ -22,14 +22,14 @@ const Button = ({ label, onClick, isLoading, disabled }) => {
     <button
       onClick={onClick}
       style={{
-        backgroundColor: "white",
-        color: "black",
-        border: "2px solid #ddd",
-        borderRadius: "8px",
-        padding: "8px 20px",
-        fontSize: "16px",
+        background: "linear-gradient(to right, #4facfe, #00f2fe)",
+        color: "white",
+        border: "none",
+        borderRadius: "50px",
+        padding: "12px 24px",
+        fontSize: "18px",
         outline: "none",
-        boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
         transition: "all 0.3s ease",
         opacity,
         cursor,

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ActiveCallDetail from "./components/ActiveCallDetail";
 import Button from "./components/base/Button";
 import Vapi from "@vapi-ai/web";
+import ErrorBoundary from "./ErrorBoundary";
 
 import { getBobAssistant } from "./assistants";
 
@@ -67,68 +68,60 @@ const App = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 1200,
-        margin: "0 auto",
-        width: "100%",
-        display: "block",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 16px",
-        boxSizing: "border-box",
-      }}
-    >
+    <ErrorBoundary>
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          maxWidth: 1200,
+          margin: "0 auto",
+          width: "100%",
+          padding: "0 16px",
+          boxSizing: "border-box",
         }}
       >
         <div
           style={{
             display: "flex",
-            width: "100vw",
-            height: "60vh",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            paddingTop: 20,
           }}
         >
-          <img
-            src="bob.png"
-            alt="Bob"
+          <div
             style={{
               display: "flex",
-              width: 300,
-              marginBottom: 20,
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh", // updated height for vertical centering
             }}
-          />
-          {!connected ? (
-            <Button
-              label="Start Call"
-              onClick={startCallInline}
-              isLoading={connecting}
+          >
+            <img
+              src="george.png"
+              alt="Gerorge"
+              style={{
+                display: "flex",
+                width: 200,
+                marginBottom: 20,
+              }}
             />
-          ) : (
-            <ActiveCallDetail
-              assistantIsSpeaking={assistantIsSpeaking}
-              volumeLevel={volumeLevel}
-              onEndCallClick={endCall}
-            />
-          )}
+            {!connected ? (
+              <Button
+                label="Start Call"
+                onClick={startCallInline}
+                isLoading={connecting}
+              />
+            ) : (
+              <ActiveCallDetail
+                assistantIsSpeaking={assistantIsSpeaking}
+                volumeLevel={volumeLevel}
+                onEndCallClick={endCall}
+              />
+            )}
+          </div>
         </div>
-        {/* <iframe
-          id="distru-product-menu-iframe-id"
-          src="https://app.distru.com/companies/1/menu/3051"
-          scrolling="no"
-          style={{border: "none", minHeight: 1000, overflow: "hidden",}}
-          width="100%"
-        ></iframe> */}
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 
