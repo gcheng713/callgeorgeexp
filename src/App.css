@@ -1,0 +1,628 @@
+.app-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background: #f0f2f5;
+  overflow: hidden;
+}
+
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  transition: all 0.8s ease;
+}
+
+.blob-1 {
+  background: rgba(64, 169, 255, 0.15);
+  width: 800px;
+  height: 800px;
+  left: -200px;
+  top: -200px;
+  animation: blob1 20s infinite alternate;
+}
+
+.blob-2 {
+  background: rgba(135, 208, 255, 0.15);
+  width: 600px;
+  height: 600px;
+  right: -100px;
+  bottom: -100px;
+  animation: blob2 15s infinite alternate;
+}
+
+.blob-3 {
+  background: rgba(173, 216, 230, 0.15);
+  width: 400px;
+  height: 400px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: blob3 18s infinite alternate;
+}
+
+.active .blob {
+  filter: blur(60px);
+  animation-duration: 10s;
+}
+
+.active .blob-1 {
+  background: rgba(64, 169, 255, 0.25);
+  animation-duration: 10s;
+}
+
+.active .blob-2 {
+  background: rgba(135, 208, 255, 0.25);
+  animation-duration: 8s;
+}
+
+.active .blob-3 {
+  background: rgba(173, 216, 230, 0.25);
+  animation-duration: 12s;
+}
+
+.transcript-container {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.transcript-line {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 16px;
+  margin: 5px 0;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-width: 80%;
+  text-align: center;
+  transform-origin: bottom center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.transcript-line.latest {
+  color: rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.transcript-line.current {
+  color: #1890ff;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(100px, 100px) scale(1.1);
+  }
+}
+
+@keyframes blob2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(-100px, -50px) scale(1.15);
+  }
+}
+
+@keyframes blob3 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+.main-content {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  padding-bottom: calc(30vh + 40px);
+}
+
+.card-container {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+  max-width: 500px;
+}
+
+.card-container.connected {
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
+
+.avatar {
+  width: 200px;
+  height: auto;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  filter: brightness(1);
+}
+
+.avatar.speaking {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Add wave effect when speaking */
+@keyframes wave {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+.speaking {
+  animation: wave 2s infinite ease-in-out;
+}
+
+/* New transcript box styles */
+.transcript-box {
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  margin: 20px 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.transcript-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcript-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transcript-box::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.transcript-line {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 14px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.transcript-line.latest {
+  color: rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.transcript-line.current {
+  color: #1890ff;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+  animation: pulse 2s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Update responsive design */
+@media (max-width: 768px) {
+  .card-container {
+    min-width: 300px;
+    padding: 20px;
+    margin: 15px;
+  }
+
+  .transcript-box {
+    max-height: 120px;
+    margin: 15px 0;
+  }
+
+  .transcript-line {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .avatar {
+    width: 150px;
+  }
+
+  .blob {
+    filter: blur(30px);
+  }
+}
+
+/* Add smooth transitions for all animations */
+* {
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, filter 0.3s ease;
+}
+
+/* Update conversation box styles */
+.conversation-box {
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.message {
+  width: 100%;
+  display: flex;
+  margin: 8px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.assistant {
+  display: none; /* Hide assistant messages for now */
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* User message styling */
+.message.user .message-bubble {
+  background: #007AFF;
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  margin-right: 12px;
+  margin-left: auto;
+}
+
+/* Assistant message styling */
+.message.assistant .message-bubble {
+  background: #E8E8EA;
+  color: #1a1a1a;
+  border-radius: 18px 18px 18px 4px;
+  margin-left: 12px;
+  margin-right: auto;
+}
+
+/* Current message animations */
+.message.user.current .message-bubble {
+  background: rgba(0, 122, 255, 0.8);
+  animation: pulseUser 2s infinite;
+}
+
+.message.assistant.current .message-bubble {
+  background: rgba(232, 232, 234, 0.8);
+  animation: pulseAssistant 2s infinite;
+}
+
+/* Pulse animations for current messages */
+@keyframes pulseUser {
+  0% {
+    background: rgba(0, 122, 255, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+  }
+  50% {
+    background: rgba(0, 122, 255, 0.9);
+    box-shadow: 0 2px 12px rgba(0, 122, 255, 0.4);
+  }
+  100% {
+    background: rgba(0, 122, 255, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+  }
+}
+
+@keyframes pulseAssistant {
+  0% {
+    background: rgba(232, 232, 234, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    background: rgba(232, 232, 234, 0.9);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    background: rgba(232, 232, 234, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Empty transcript message */
+.empty-transcript {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* Improve transcript container */
+.live-transcript {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  min-height: 250px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Transcript visibility states */
+.live-transcript.hidden {
+  transform: translateY(calc(100% - 60px));
+}
+
+.live-transcript.visible {
+  transform: translateY(0);
+}
+
+/* Header styles */
+.transcript-header {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.transcript-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Button styles */
+.transcript-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.transcript-button:hover {
+  background: #e8e8e8;
+}
+
+.transcript-button.toggle-button {
+  background: transparent;
+}
+
+.transcript-button.toggle-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.button-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Content area */
+.transcript-content {
+  flex-grow: 1;
+  height: 200px;
+  min-height: 150px;
+  overflow-y: auto;
+  padding: 20px;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+/* Message styles */
+.message {
+  width: 100%;
+  display: flex;
+  margin: 8px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.assistant {
+  display: none; /* Hide assistant messages for now */
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.message.user .message-bubble {
+  background: #007AFF;
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  margin-right: 12px;
+  margin-left: auto;
+}
+
+/* Current message animations */
+.message.user.current .message-bubble {
+  background: rgba(0, 122, 255, 0.8);
+  animation: pulseUser 2s infinite;
+}
+
+/* Animations */
+@keyframes pulseUser {
+  0% {
+    background: rgba(0, 122, 255, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+  }
+  50% {
+    background: rgba(0, 122, 255, 0.9);
+    box-shadow: 0 2px 12px rgba(0, 122, 255, 0.4);
+  }
+  100% {
+    background: rgba(0, 122, 255, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar styling */
+.transcript-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcript-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transcript-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .transcript-content {
+    height: 150px;
+  }
+
+  .message-bubble {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .transcript-button {
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+
+  .messages-container {
+    padding: 0 10px;
+  }
+} 

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const getBobAssistant = async () => {
   return {
     name: "Georgia",
-    firstMessage: "Hi, thanks for calling! My name is Georgia. Are you looking to schedule a home inspection today?",
+    firstMessage: "Hi, thanks for calling! My name is George. Are you looking to schedule a home inspection today?",
     transcriber: {
       provider: "deepgram",
       model: "nova-2",
